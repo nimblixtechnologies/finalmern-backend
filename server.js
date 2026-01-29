@@ -189,7 +189,7 @@ app.post("/api/upload-cv", uploadCV.single("cv"), async (req, res) => {
 /* ===============================
    SEND MAIL (MCQ / BOARD)
 ================================ */
-app.post("api/send-mail", async (req, res) => {
+app.post("/api/send-mail", async (req, res) => {
   try {
     await transporter.sendMail({
       from: `MCQ App <${process.env.MAIL_USER}>`,
