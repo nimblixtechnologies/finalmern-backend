@@ -25,17 +25,6 @@ const app = express();
 ================================ */
 app.use(cors());
 app.use(express.json());
-app.use(
-  cors({
-    origin: [
-      "https://finalmern-4.vercel.app",
-      "http://localhost:5173",
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-  })
-);
-
-app.use(express.json());
 
 /* ===============================
    MAIL CONFIG
@@ -113,45 +102,11 @@ app.post(
 ================================ */
 
 
-// app.post("/api/upload-cv", uploadCV.single("cv"), async (req, res) => {
-//    console.log("BODY:", req.body);
-//   console.log("FILE:", req.file);
-
-//   res.json({ ok: true });
-//   try {
-//     if (!req.file) {
-//       return res.status(400).json({
-//         success: false,
-//         error: "No file uploaded",
-//       });
-//     }
-
-//     const fileUrl = req.file.path;
-
-//     await transporter.sendMail({
-//       from: `"Interview Platform" <${process.env.MAIL_USER}>`,
-//       to: "nimblixtechnologies@gmail.com",
-//       subject: "New CV Uploaded",
-//       html: `
-//         <p>A new CV has been uploaded.</p>
-//         <a href="${fileUrl}" target="_blank">View CV</a>
-//       `,
-//     });
-
-//     res.json({
-//       success: true,
-//       message: "CV uploaded successfully",
-//       cvUrl: fileUrl,
-//     });
-//   } catch (error) {
-//     console.error("CV UPLOAD ERROR:", error.message);
-//     res.status(500).json({
-//       success: false,
-//       error: error.message,
-//     });
-//   }
-// });
 app.post("/api/upload-cv", uploadCV.single("cv"), async (req, res) => {
+   console.log("BODY:", req.body);
+  console.log("FILE:", req.file);
+
+  res.json({ ok: true });
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -189,7 +144,7 @@ app.post("/api/upload-cv", uploadCV.single("cv"), async (req, res) => {
 /* ===============================
    SEND MAIL (MCQ / BOARD)
 ================================ */
-app.post("/api/send-mail", async (req, res) => {
+app.post("/send-mail", async (req, res) => {
   try {
     await transporter.sendMail({
       from: `MCQ App <${process.env.MAIL_USER}>`,
@@ -228,6 +183,17 @@ app.post("/generate-meeting", async (req, res) => {
 /* ===============================
    GLOBAL ERROR HANDLER
 ================================ */
+app.use(
+  cors({
+    origin: [
+      "https://finalmern-4.vercel.app", // Vercel frontend
+      "http://localhost:5173"           // Local dev
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  })
+);
+app.use(express.json());
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     return res.status(400).json({
