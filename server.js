@@ -6,7 +6,6 @@ const crypto = require("crypto");
 const multer = require("multer");
 require("dotenv").config();
 
-
 /* ===============================
    CLOUDINARY SETUP
 ================================ */
@@ -30,15 +29,23 @@ app.use(express.json());
 /* ===============================
    MAIL CONFIG
 ================================ */
+// const transporter = nodemailer.createTransport({
+//   host: process.env.MAIL_HOST,
+//   port: process.env.MAIL_PORT,
+//   secure: false,
+//   auth: {
+//     user: process.env.MAIL_USER,
+//     pass: process.env.MAIL_PASS,
+//   },
+// });
 const transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: process.env.MAIL_PORT,
-  secure: false,
+  service: "gmail",
   auth: {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
   },
 });
+
 
 transporter.verify((err) => {
   if (err) console.log("❌ Mail Error:", err);
@@ -176,6 +183,17 @@ app.post("/generate-meeting", async (req, res) => {
 /* ===============================
    GLOBAL ERROR HANDLER
 ================================ */
+app.use(
+  cors({
+    origin: [
+      "https://finalmern-4.vercel.app", // Vercel frontend
+      "http://localhost:5173"           // Local dev
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  })
+);
+app.use(express.json());
 app.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {
     return res.status(400).json({
@@ -204,4 +222,17 @@ app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
 
-
+app.get("/mail-test", async (req, res) => {
+  try {
+    await transporter.sendMail({
+      from: process.env.MAIL_USER,
+      to: process.env.MAIL_USER,
+      subject: "Mail test",
+      text: "Mail system working",
+    });
+    res.send("Mail sent successfully");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err.message);
+  }
+});
